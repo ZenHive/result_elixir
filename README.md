@@ -10,7 +10,7 @@ The package can be installed by adding `result` to your list of dependencies in 
 ```elixir
 def deps do
   [
-    {:result, git: "git@github.com:ZenHive/result_elixir.git", tag: "v0.1.0"},
+    {:result, git: "git@github.com:ZenHive/result_elixir.git", tag: "v0.2.0"},
   ]
 end
 ```
