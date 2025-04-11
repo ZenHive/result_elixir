@@ -158,7 +158,7 @@ defmodule Result do
   ## Examples
       iex> Result.map_or_else({:ok, 42}, fn _err -> 42 end, &(&1 + 2))
       44
-  
+
       iex> Result.map_or_else({:error, "error"}, fn _err -> 42 end, &(&1 + 2))
       42
 
@@ -186,7 +186,7 @@ defmodule Result do
 
       iex> Result.map_err(:ok, fn _ -> 42 end)
       :ok
-  
+
       iex> Result.map_err(:error, fn nil -> 43 end)
       {:error, 43}
   """
@@ -395,11 +395,40 @@ defmodule Result do
       iex> Result.and_then(:error, &({:ok, &1 + 1}))
       :error
   """
-  @spec and_then(t(ok, err), (ok -> t(new_ok, err))) :: t(new_ok, err)
+  @spec and_then(t(ok, err), (ok -> t(new_ok, new_err))) :: t(new_ok, new_err)
   def and_then({:ok, value}, f), do: f.(value)
   def and_then(:ok, f), do: f.(nil)
   def and_then({:error, _} = result, _f), do: result
   def and_then(:error = result, _f), do: result
+
+  @doc """
+  Returns the result of applying a function to the contained value if Err.
+  Returns the original result if Ok.
+
+  ## Examples
+      iex> Result.or_else({:error, 42}, &({:error, &1 + 1}))
+      {:error, 43}
+
+      iex> Result.or_else({:error, 42}, &({:ok, &1 + 1}))
+      {:ok, 43}
+
+      iex> Result.or_else({:ok, 42}, &({:error, &1 + 1}))
+      {:ok, 42}
+
+      iex> Result.or_else(:error, fn nil -> {:error, 42} end)
+      {:error, 42}
+
+      iex> Result.or_else(:error, fn nil -> {:ok, 0} end)
+      {:ok, 0}
+
+      iex> Result.or_else(:ok, &({:error, &1 + 1}))
+      :ok
+  """
+  @spec or_else(t(ok, err), (err -> t(new_ok, new_err))) :: t(new_ok, new_err)
+  def or_else({:error, value}, f), do: f.(value)
+  def or_else(:error, f), do: f.(nil)
+  def or_else({:ok, _} = result, _f), do: result
+  def or_else(:ok = result, _f), do: result
 
   @doc """
   Returns the contained Ok value or a default
