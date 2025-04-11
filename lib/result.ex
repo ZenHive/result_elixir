@@ -493,12 +493,24 @@ defmodule Result do
       iex> Result.try_reduce([1, 2, 3], 0, fn x, acc -> {:ok, acc + x} end)
       {:ok, 6}
 
+      iex> Result.try_reduce([1, 2, 3], nil, fn _, _ -> :ok end)
+      :ok
+
       iex> Result.try_reduce([1, 2, 3], 0, fn x, acc ->
       ...>   if x == 2, do: {:error, "found 2"}, else: {:ok, acc + x}
       ...> end)
       {:error, "found 2"}
 
+      iex> Result.try_reduce([1, 2, 3], 0, fn x, acc ->
+      ...>   if x == 2, do: :error, else: {:ok, acc + x}
+      ...> end)
+      :error
+
       iex> Result.try_reduce([], 42, fn _x, acc -> {:ok, acc} end)
+      {:ok, 42}
+
+      # Since the enumerable is empty, {:ok, acc} is returned not :ok (because the function is never called)
+      iex> Result.try_reduce([], 42, fn _x, _acc -> :ok end)
       {:ok, 42}
   """
   @spec try_reduce(list(any()), any(), (any(), any() -> Result.t(any(), any()))) ::
