@@ -1,4 +1,9 @@
 defmodule Result do
+  @moduledoc "README.md"
+             |> File.read!()
+             |> String.split("<!-- Result Module Doc Separator !-->")
+             |> Enum.fetch!(1)
+
   @type ok :: any()
   @type new_ok :: any()
   @type err :: any()

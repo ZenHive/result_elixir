@@ -1,5 +1,6 @@
 # Result
 
+<!-- Result Module Doc Separator !-->
 A Result type implementation for Elixir, inspired by Rust's Result type. This library provides a
 robust way to handle success and error cases.
 
@@ -14,3 +15,5 @@ def deps do
   ]
 end
 ```
+
+<!-- Result Module Doc Separator !-->
