@@ -536,4 +536,31 @@ defmodule Result do
       end
     end)
   end
+
+  @doc """
+  Tries to get a key from a map. If the key is not found, it returns an error.
+  If the key is found, it returns {:ok, value}.
+
+
+  ## Examples
+      iex> Result.try_get(%{a: 1}, :a)
+      {:ok, 1}
+
+      iex> Result.try_get(%{a: 1}, :b)
+      {:error, "Key ':b' is missing from map"}
+
+      iex> Result.try_get(%{a: 1}, :a, "Custom error message")
+      {:ok, 1}
+
+      iex> Result.try_get(%{a: 1}, :b, "Custom error message")
+      {:error, "Custom error message"}
+  """
+  @spec try_get(map(), any()) :: Result.t(any(), any())
+  def try_get(map, key, error_msg \\ nil) do
+    cond do
+      elem = Map.get(map, key) -> {:ok, elem}
+      error_msg -> {:error, error_msg}
+      true -> {:error, "Key '#{inspect key}' is missing from map"}
+    end
+  end
 end
