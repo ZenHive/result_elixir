@@ -22,6 +22,7 @@ defmodule Result.MixProject do
   defp deps do
     [
       {:ex_doc, "~> 0.37", only: :dev, runtime: false},
+      {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false}
     ]
   end
 end
