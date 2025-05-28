@@ -10,6 +10,28 @@ defmodule Result do
   @type new_err :: any()
 
   @doc """
+  Converts :ok and :error to tuple form or returns the argument untouched if is neither :ok or
+  :error
+
+  ## Examples
+      iex> Result.normalize(:ok)
+      {:ok, nil}
+
+      iex> Result.normalize(:error)
+      {:error, nil}
+
+      iex> Result.normalize(:anything_else)
+      :anything_else
+
+      iex> Result.normalize("even if not an atom")
+      "even if not an atom"
+  """
+  @spec normalize(:ok | :error | any()) :: {:ok, nil} | {:error, nil} | any()
+  def normalize(:ok), do: {:ok, nil}
+  def normalize(:error), do: {:error, nil}
+  def normalize(other), do: other
+
+  @doc """
   Returns true if the result is ok
 
   ## Examples
