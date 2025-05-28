@@ -1,6 +1,7 @@
 # Result
 
 <!-- Result Module Doc Separator !-->
+
 A Result type implementation for Elixir, inspired by Rust's Result type. This library provides a
 robust way to handle success and error cases.
 
@@ -11,7 +12,7 @@ The package can be installed by adding `result` to your list of dependencies in 
 ```elixir
 def deps do
   [
-    {:result, git: "https://github.com/ZenHive/result_elixir.git", tag: "v0.4.0"},
+    {:result, git: "https://github.com/ZenHive/result_elixir.git", tag: "v0.5.0"},
   ]
 end
 ```
