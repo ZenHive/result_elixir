@@ -9,8 +9,6 @@ defmodule Result do
   @type err :: any()
   @type new_err :: any()
 
-  @type t(ok, err) :: {:ok, ok} | {:error, err} | :ok | :error
-
   @doc """
   Returns true if the result is ok
 
@@ -27,7 +25,7 @@ defmodule Result do
       iex> Result.is_ok?(:error)
       false
   """
-  @spec is_ok?(t(ok, err)) :: boolean
+  @spec is_ok?({:ok, ok} | {:error, err} | :ok | :error) :: boolean
   def is_ok?({:ok, _}), do: true
   def is_ok?(:ok), do: true
   def is_ok?({:error, _}), do: false
@@ -55,7 +53,7 @@ defmodule Result do
       iex> Result.is_ok_and?(:error, &(&1 == nil))
       false
   """
-  @spec is_ok_and?(t(ok, err), (ok -> boolean)) :: boolean
+  @spec is_ok_and?({:ok, ok} | {:error, err} | :ok | :error, (ok -> boolean)) :: boolean
   def is_ok_and?({:ok, value}, f), do: f.(value)
   def is_ok_and?(:ok, f), do: f.(nil)
   def is_ok_and?({:error, _}, _f), do: false
@@ -77,7 +75,7 @@ defmodule Result do
       iex> Result.is_err?(:error)
       true
   """
-  @spec is_err?(t(ok, err)) :: boolean
+  @spec is_err?({:ok, ok} | {:error, err} | :ok | :error) :: boolean
   def is_err?({:error, _}), do: true
   def is_err?(:error), do: true
   def is_err?({:ok, _}), do: false
@@ -105,7 +103,7 @@ defmodule Result do
       iex> Result.is_err_and?(:ok, &(&1 == nil))
       false
   """
-  @spec is_err_and?(t(ok, err), (err -> boolean)) :: boolean
+  @spec is_err_and?({:ok, ok} | {:error, err} | :ok | :error, (err -> boolean)) :: boolean
   def is_err_and?({:error, err}, f), do: f.(err)
   def is_err_and?(:error, f), do: f.(nil)
   def is_err_and?({:ok, _}, _f), do: false
@@ -127,7 +125,7 @@ defmodule Result do
       iex> Result.map(:error, fn _ -> 1 end)
       :error
   """
-  @spec map(t(ok, err), (ok -> new_ok)) :: t(new_ok, err)
+  @spec map({:ok, ok} | {:error, err} | :ok | :error, (ok -> new_ok)) :: {:ok, new_ok} | {:error, err} | :ok | :error
   def map({:ok, value}, f), do: {:ok, f.(value)}
   def map(:ok, f), do: {:ok, f.(nil)}
   def map({:error, _} = result, _f), do: result
@@ -151,7 +149,7 @@ defmodule Result do
       iex> Result.map_or(:error, 0, fn _ -> 1 end)
       0
   """
-  @spec map_or(t(ok, err), new_ok, (ok -> new_ok)) :: new_ok
+  @spec map_or({:ok, ok} | {:error, err} | :ok | :error, new_ok, (ok -> new_ok)) :: new_ok
   def map_or({:ok, value}, _default, f), do: f.(value)
   def map_or(:ok, _default, f), do: f.(nil)
   def map_or({:error, _}, default, _f), do: default
@@ -173,7 +171,7 @@ defmodule Result do
       iex> Result.map_or_else(:error, fn nil -> 0 end, fn _ -> 42 end)
       0
   """
-  @spec map_or_else(t(ok, err), (err -> new_ok), (ok -> new_ok)) :: new_ok
+  @spec map_or_else({:ok, ok} | {:error, err} | :ok | :error, (err -> new_ok), (ok -> new_ok)) :: new_ok
   def map_or_else({:ok, value}, _f_default, f), do: f.(value)
   def map_or_else(:ok, _f_default, f), do: f.(nil)
   def map_or_else({:error, err}, f_default, _f), do: f_default.(err)
@@ -195,7 +193,7 @@ defmodule Result do
       iex> Result.map_err(:error, fn nil -> 43 end)
       {:error, 43}
   """
-  @spec map_err(t(ok, err), (err -> new_err)) :: t(ok, new_err)
+  @spec map_err({:ok, ok} | {:error, err} | :ok | :error, (err -> new_err)) :: {:ok, ok} | {:error, new_err} | :ok | :error
   def map_err({:error, err}, f), do: {:error, f.(err)}
   def map_err(:error, f), do: {:error, f.(nil)}
   def map_err({:ok, _} = result, _f), do: result
@@ -227,7 +225,7 @@ defmodule Result do
       iex> ExUnit.CaptureIO.capture_io(fn -> Result.inspect(:error, &(IO.inspect(&1))) end)
       ""
   """
-  @spec inspect(t(ok, err), (ok -> any)) :: t(ok, err)
+  @spec inspect({:ok, ok} | {:error, err} | :ok | :error, (ok -> any)) :: {:ok, ok} | {:error, err} | :ok | :error
   def inspect({:ok, value} = result, f) do
     f.(value)
     result
@@ -267,7 +265,7 @@ defmodule Result do
       iex> ExUnit.CaptureIO.capture_io(fn -> Result.inspect_err(:error, &(IO.inspect(&1))) end)
       "nil\\n"
   """
-  @spec inspect_err(t(ok, err), (err -> any)) :: t(ok, err)
+  @spec inspect_err({:ok, ok} | {:error, err} | :ok | :error, (err -> any)) :: {:ok, ok} | {:error, err} | :ok | :error
   def inspect_err({:error, err} = result, f) do
     f.(err)
     result
@@ -297,7 +295,7 @@ defmodule Result do
       iex> Result.expect!(:error, "Foo")
       ** (RuntimeError) Foo: nil
   """
-  @spec expect!(t(ok, err), String.t()) :: ok
+  @spec expect!({:ok, ok} | {:error, err} | :ok | :error, String.t()) :: ok
   def expect!({:ok, value}, _msg), do: value
   def expect!(:ok, _msg), do: nil
   def expect!({:error, err}, msg), do: raise("#{msg}: #{inspect(err)}")
@@ -319,7 +317,7 @@ defmodule Result do
       iex> Result.unwrap!(:error)
       ** (RuntimeError) Result.unwrap!() called with result :error
   """
-  @spec unwrap!(t(ok, err)) :: ok
+  @spec unwrap!({:ok, ok} | {:error, err} | :ok | :error) :: ok
   def unwrap!({:ok, value}), do: value
   def unwrap!(:ok), do: nil
 
@@ -345,7 +343,7 @@ defmodule Result do
       iex> Result.expect_err!(:ok, "Foo")
       ** (RuntimeError) Foo: nil
   """
-  @spec expect_err!(t(ok, err), String.t()) :: err
+  @spec expect_err!({:ok, ok} | {:error, err} | :ok | :error, String.t()) :: err
   def expect_err!({:error, err}, _msg), do: err
   def expect_err!(:error, _msg), do: nil
   def expect_err!({:ok, value}, msg), do: raise("#{msg}: #{inspect(value)}")
@@ -367,7 +365,7 @@ defmodule Result do
       iex> Result.unwrap_err!(:ok)
       ** (RuntimeError) Result.unwrap_err!() called with result :ok
   """
-  @spec unwrap_err!(t(ok, err)) :: err
+  @spec unwrap_err!({:ok, ok} | {:error, err} | :ok | :error) :: err
   def unwrap_err!({:error, err}), do: err
   def unwrap_err!(:error), do: nil
 
@@ -400,7 +398,7 @@ defmodule Result do
       iex> Result.and_then(:error, &({:ok, &1 + 1}))
       :error
   """
-  @spec and_then(t(ok, err), (ok -> t(new_ok, new_err))) :: t(new_ok, new_err)
+  @spec and_then({:ok, ok} | {:error, err} | :ok | :error, (ok -> {:ok, new_ok} | {:error, new_err} | :ok | :error)) :: {:ok, new_ok} | {:error, new_err} | :ok | :error
   def and_then({:ok, value}, f), do: f.(value)
   def and_then(:ok, f), do: f.(nil)
   def and_then({:error, _} = result, _f), do: result
@@ -429,7 +427,7 @@ defmodule Result do
       iex> Result.or_else(:ok, &({:error, &1 + 1}))
       :ok
   """
-  @spec or_else(t(ok, err), (err -> t(new_ok, new_err))) :: t(new_ok, new_err)
+  @spec or_else({:ok, ok} | {:error, err} | :ok | :error, (err -> {:ok, new_ok} | {:error, new_err} | :ok | :error)) :: {:ok, new_ok} | {:error, new_err} | :ok | :error
   def or_else({:error, value}, f), do: f.(value)
   def or_else(:error, f), do: f.(nil)
   def or_else({:ok, _} = result, _f), do: result
@@ -453,7 +451,7 @@ defmodule Result do
       iex> Result.unwrap_or(:error, 0)
       0
   """
-  @spec unwrap_or(t(ok, err), ok) :: ok
+  @spec unwrap_or({:ok, ok} | {:error, err} | :ok | :error, ok) :: ok
   def unwrap_or({:ok, value}, _default), do: value
   def unwrap_or(:ok, _default), do: nil
   def unwrap_or({:error, _}, default), do: default
@@ -475,7 +473,7 @@ defmodule Result do
       iex> Result.unwrap_or_else(:error, fn _ -> 0 end)
       0
   """
-  @spec unwrap_or_else(t(ok, err), (err -> ok)) :: ok
+  @spec unwrap_or_else({:ok, ok} | {:error, err} | :ok | :error, (err -> ok)) :: ok
   def unwrap_or_else({:ok, value}, _f_default), do: value
   def unwrap_or_else(:ok, _f_default), do: nil
   def unwrap_or_else({:error, err}, f_default), do: f_default.(err)
@@ -518,8 +516,8 @@ defmodule Result do
       iex> Result.try_reduce([], 42, fn _x, _acc -> :ok end)
       {:ok, 42}
   """
-  @spec try_reduce(list(any()), any(), (any(), any() -> Result.t(any(), any()))) ::
-          Result.t(any(), any())
+  @spec try_reduce(list(any()), any(), (any(), any() -> {:ok, any()} | {:error, any()} | :ok | :error)) ::
+          {:ok, any()} | {:error, any()} | :ok | :error
   def try_reduce(list, acc, f) do
     Enum.reduce_while(list, {:ok, acc}, fn elem, acc ->
       sub_acc =
@@ -555,12 +553,12 @@ defmodule Result do
       iex> Result.try_get(%{a: 1}, :b, "Custom error message")
       {:error, "Custom error message"}
   """
-  @spec try_get(map(), any()) :: Result.t(any(), any())
+  @spec try_get(map(), any()) :: {:ok, any()} | {:error, any()} | :ok | :error
   def try_get(map, key, error_msg \\ nil) do
     cond do
       elem = Map.get(map, key) -> {:ok, elem}
       error_msg -> {:error, error_msg}
-      true -> {:error, "Key '#{inspect key}' is missing from map"}
+      true -> {:error, "Key '#{inspect(key)}' is missing from map"}
     end
   end
 end
